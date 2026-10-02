@@ -1,25 +1,39 @@
 # KindBites
 
-KindBites is a Next.js platform for sharing surplus food and essential items with community organizations. Donors can register, submit item details and pickup information, and track approval or collection. Administrators can review item donations, verify accounts, and view food listings.
+KindBites is a food and essential-item sharing platform that helps connect people and businesses with surplus resources to community organizations that can use them. The project is designed to support donation coordination, organization verification, and pickup workflows.
 
-## Requirements
+## What the platform does
 
-- Node.js 18 or newer
-- MySQL database
-- Environment variables listed in `.env.example`
+- Lets food vendors create listings for surplus food, including quantity and pickup details.
+- Lets NGOs and charities find available listings and request pickups.
+- Supports individual donation drives for food and essential items.
+- Provides account and document verification workflows for organizations.
+- Gives administrators tools to review accounts and donation requests.
+- Tracks pickup requests and donation progress through their statuses.
 
-## Getting started
+## User roles
 
-1. Install dependencies with `npm install`.
-2. Provision a **new, empty** MySQL database exclusively for KindBites.
-3. Apply `db.sql` to that database. It creates empty tables only and inserts no records.
-4. Copy `.env.example` to `.env.local` and set `DB_HOST`, `DB_USER`, `DB_PASSWORD`, and `DB_NAME` to the new KindBites database, plus authentication and mail credentials.
-5. Start the development server with `npm run dev`.
+- **Food vendors** share available food and respond to pickup requests.
+- **NGOs and charities** browse listings, request pickups, and coordinate collection.
+- **Individual donors** submit item donations through the donation-drive experience.
+- **Administrators** review pending organization verifications and donation activity.
 
-KindBites reads and writes data only through the configured database connection. Accounts, item donations, food listings, and verification records are created by the new application after deployment. The setup route is disabled, and the schema contains no imported or sample rows.
+Vendor and NGO accounts may require approval before they can use all platform features. Administrator accounts are managed by the project owner and are not available through public signup.
 
-## Validation
+## Main areas
 
-- `npm run type-check`
-- `npm run build`
-- `npm run lint`
+- **Home:** introduces the platform and links to its main experiences.
+- **Registration and verification:** collects account and organization details and supports document submission and review status.
+- **Vendor dashboard:** manages food listings and pickup requests.
+- **NGO dashboard:** explores food listings and manages pickup requests.
+- **Donation drive:** supports individual donor registration and item donation submissions.
+- **Admin dashboard:** reviews pending verifications and donation activity.
+
+## Technology
+
+- Next.js 14 and React 18
+- TypeScript
+- MySQL with `mysql2` connection pooling
+- Tailwind CSS
+- JWT-based authentication and role-based access controls
+- `bcryptjs` for password hashing
