@@ -2,6 +2,10 @@
 
 KindBites is a food and essential-item sharing platform that helps connect people and businesses with surplus resources to community organizations that can use them. The project is designed to support donation coordination, organization verification, and pickup workflows.
 
+## Live application
+
+[Open KindBites](https://kindbites-ik4o.onrender.com)
+
 ## What the platform does
 
 - Lets food vendors create listings for surplus food, including quantity and pickup details.
