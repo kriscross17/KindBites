@@ -22,6 +22,7 @@ export function getDatabaseConfig() {
     password: process.env.DB_PASSWORD!,
     database: process.env.DB_NAME!,
     port: parseInt(process.env.DB_PORT || '3306', 10),
+    ...(process.env.DB_SSL === 'true' ? { ssl: { rejectUnauthorized: true } } : {}),
     connectionLimit: parseInt(process.env.DB_CONNECTION_LIMIT || '50', 10),
     waitForConnections: true,
     queueLimit: 0,
