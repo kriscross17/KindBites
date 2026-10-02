@@ -1,7 +1,7 @@
 import { NextResponse, NextRequest } from 'next/server'
 import { executeQuery, executeInTransaction } from '@/lib/database'
 import { sendEmail } from '@/lib/email'
-import { generateDonationReceipt } from '@/lib/pdfReceipt'
+import { generateItemDonationAcknowledgement } from '@/lib/itemDonationAcknowledgement'
 import { 
   handleError, 
   handleSuccess, 
@@ -163,7 +163,7 @@ export async function PUT(
         <ol>
           <li>Verify and collect the donated items</li>
           <li>Take a photo for documentation</li>
-          <li>Provide you with a final confirmation receipt</li>
+          <li>Provide you with an item collection acknowledgement</li>
         </ol>
         
         <p><strong>Please ensure someone is available at the collection address during the scheduled time.</strong></p>
@@ -204,10 +204,10 @@ export async function PUT(
         `
         })
       } else if (action === 'collected') {
-        // Generate PDF receipt
-        const receiptNumber = `RCP-ITM-${String(donation.id).padStart(6, '0')}`
-        const receiptData = {
-        receiptNumber,
+        // Generate an item collection acknowledgement
+        const acknowledgementNumber = `KB-ITEM-${String(donation.id).padStart(6, '0')}`
+        const acknowledgementData = {
+        acknowledgementNumber,
         dateOfIssue: new Date().toLocaleDateString('en-IN', {
           year: 'numeric',
           month: 'long',
@@ -222,13 +222,13 @@ export async function PUT(
         isPreview: false
       }
 
-      const pdfBuffer = await generateDonationReceipt(receiptData)
+      const pdfBuffer = await generateItemDonationAcknowledgement(acknowledgementData)
       const pdfBase64 = pdfBuffer.toString('base64')
 
-      // Email after collection with photo and PDF receipt
+      // Email after collection with photo and item acknowledgement
       const emailAttachments: any[] = [
         {
-          filename: `donation-receipt-${receiptNumber}.pdf`,
+          filename: `item-donation-acknowledgement-${acknowledgementNumber}.pdf`,
           content: pdfBase64,
           encoding: 'base64',
           contentType: 'application/pdf'
@@ -247,7 +247,7 @@ export async function PUT(
 
       await sendEmail({
         to: donation.email,
-        subject: 'Item Donation Collected - Thank You! [Receipt Attached]',
+        subject: 'Item Donation Collected - Thank You! [Acknowledgement Attached]',
         html: `
         <h2>✅ Items Successfully Collected!</h2>
         
@@ -261,7 +261,7 @@ export async function PUT(
           <li><strong>Quantity:</strong> ${donation.quantity}</li>
           <li><strong>Collection Date:</strong> ${new Date().toLocaleDateString('en-IN', { dateStyle: 'full' })}</li>
           <li><strong>Donation ID:</strong> #ITM${String(donation.id).padStart(6, '0')}</li>
-          <li><strong>Receipt Number:</strong> ${receiptNumber}</li>
+          <li><strong>Acknowledgement:</strong> ${acknowledgementNumber}</li>
         </ul>
         
         ${approvalPhoto ? `
@@ -270,7 +270,7 @@ export async function PUT(
         <img src="cid:collectionPhoto" alt="Collection photo" style="max-width: 500px; border-radius: 8px; margin: 20px 0; display: block;" />
         ` : ''}
         
-        <p><strong>📄 Your official donation receipt is attached to this email as a PDF.</strong></p>
+        <p><strong>📄 Your item collection acknowledgement is attached to this email as a PDF.</strong></p>
         
         <p>Your donation will directly help those in need during our KindBites food sharing program.</p>
         

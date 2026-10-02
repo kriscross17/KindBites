@@ -1,8 +1,7 @@
 import { jsPDF } from 'jspdf'
 
-export interface DonationReceiptData {
-  receiptNumber: string
-  transactionId?: string
+export interface ItemDonationAcknowledgementData {
+  acknowledgementNumber: string
   dateOfIssue: string
   donorName: string
   donorEmail: string
@@ -10,7 +9,7 @@ export interface DonationReceiptData {
   quantity?: number
 }
 
-export async function generateDonationReceipt(data: DonationReceiptData): Promise<Buffer> {
+export async function generateItemDonationAcknowledgement(data: ItemDonationAcknowledgementData): Promise<Buffer> {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
   const center = doc.internal.pageSize.getWidth() / 2
   doc.setFont('helvetica', 'bold')
@@ -21,13 +20,12 @@ export async function generateDonationReceipt(data: DonationReceiptData): Promis
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(11)
   const rows = [
-    ['Reference', data.receiptNumber],
+    ['Acknowledgement', data.acknowledgementNumber],
     ['Date', data.dateOfIssue],
     ['Donor', data.donorName],
     ['Email', data.donorEmail],
     ['Item', data.itemDescription || 'Food or essential items'],
     ['Quantity', String(data.quantity ?? '')],
-    ...(data.transactionId ? [['Submission reference', data.transactionId]] : []),
   ]
   let y = 72
   for (const [label, value] of rows) {

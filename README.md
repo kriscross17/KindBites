@@ -11,11 +11,12 @@ KindBites is a Next.js platform for sharing surplus food and essential items wit
 ## Getting started
 
 1. Install dependencies with `npm install`.
-2. Create a MySQL database and apply `db.sql` to a fresh database.
-3. Copy `.env.example` to `.env.local` and set database, authentication, and mail credentials.
-4. Start the development server with `npm run dev`.
+2. Provision a **new, empty** MySQL database exclusively for KindBites.
+3. Apply `db.sql` to that database. It creates empty tables only and inserts no records.
+4. Copy `.env.example` to `.env.local` and set `DB_HOST`, `DB_USER`, `DB_PASSWORD`, and `DB_NAME` to the new KindBites database, plus authentication and mail credentials.
+5. Start the development server with `npm run dev`.
 
-The donation flow supports food and item contributions stored in `item_donations`. Existing installations can remove historical monetary data using `migrations/002_remove_monetary_donations.sql` after reviewing the target database.
+KindBites reads and writes data only through the configured database connection. Accounts, item donations, food listings, and verification records are created by the new application after deployment. The setup route is disabled, and the schema contains no imported or sample rows.
 
 ## Validation
 

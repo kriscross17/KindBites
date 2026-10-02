@@ -55,8 +55,9 @@ function extractToken(request: NextRequest): string | null {
  * Verify JWT token and extract payload
  */
 export function verifyToken(token: string): JWTPayload {
+  const secret = AUTH_CONFIG.jwtSecret
   try {
-    const decoded = jwt.verify(token, AUTH_CONFIG.jwtSecret) as JWTPayload;
+    const decoded = jwt.verify(token, secret) as JWTPayload;
     return decoded;
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {

@@ -3,7 +3,7 @@
  * Provides comprehensive validation for all user inputs
  */
 
-import { VALIDATION_RULES, UPLOAD_CONFIG, DONATION_CONFIG } from './config';
+import { VALIDATION_RULES, UPLOAD_CONFIG } from './config';
 import { ValidationError } from './errors';
 
 /**

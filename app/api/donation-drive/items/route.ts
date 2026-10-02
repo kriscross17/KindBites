@@ -18,7 +18,7 @@ import {
   sanitizeString,
   parseInteger 
 } from '@/lib/validation'
-import { HTTP_STATUS, DONATION_CONFIG } from '@/lib/config'
+import { HTTP_STATUS } from '@/lib/config'
 
 interface ItemDonationRequest {
   donorId: number
@@ -69,20 +69,13 @@ export async function POST(request: NextRequest) {
       throw new ValidationError('Pickup datetime cannot be in the past')
     }
 
-    // Generate unique transaction ID
-    const now = new Date()
-    const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '')
-    const timeStr = now.toTimeString().slice(0, 8).replace(/:/g, '')
-    const randomStr = Math.random().toString(36).substring(2, 8).toUpperCase()
-    const transactionId = `${DONATION_CONFIG.transactionIdPrefix.item}-${dateStr}-${timeStr}-${randomStr}`
-
     // Execute in transaction for data integrity
     const result = await executeInTransaction(async (connection) => {
       // Insert item donation
       const [donationResult] = await connection.execute(
-        `INSERT INTO item_donations (donor_id, transaction_id, item_title, quantity, pickup_datetime, pickup_address, status) 
-         VALUES (?, ?, ?, ?, ?, ?, 'pending')`,
-        [donorId, transactionId, itemTitle, quantity, body.pickupDatetime, pickupAddress]
+        `INSERT INTO item_donations (donor_id, item_title, quantity, pickup_datetime, pickup_address, status)
+         VALUES (?, ?, ?, ?, ?, 'pending')`,
+        [donorId, itemTitle, quantity, body.pickupDatetime, pickupAddress]
       )
       const donationId = (donationResult as any).insertId
 
@@ -93,10 +86,10 @@ export async function POST(request: NextRequest) {
         [donorId, donationId]
       )
 
-      return { donationId, transactionId }
+      return { donationId }
     })
 
-    logInfo('Item donation submitted', { donorId, transactionId, itemTitle, quantity })
+    logInfo('Item donation submitted', { donorId, donationId: result.donationId, itemTitle, quantity })
 
     return handleSuccess(result, 'Item donation request submitted successfully. Pending admin approval.', HTTP_STATUS.CREATED)
 

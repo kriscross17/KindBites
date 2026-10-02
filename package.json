@@ -18,7 +18,7 @@
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "type-check": "tsc --noEmit",
-    "setup": "node -e \\\"console.log('Apply db.sql to your MySQL database, then configure .env.local')\\\""
+    "setup": "node -e 'console.log(\"Create a new empty KindBites MySQL database, then apply db.sql and configure .env.local\")'"
   },
   "dependencies": {
     "@types/node": "^20.0.0",

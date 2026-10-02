@@ -1,86 +1,68 @@
-/**
- * Centralized Configuration Management
- * All environment variables and constants are validated and exported from here
- */
+/** Runtime configuration is validated only when the related feature is used. */
+import { ConfigurationError } from './configurationError';
 
-// Validate required environment variables
-const requiredEnvVars = [
-  'DB_HOST',
-  'DB_USER',
-  'DB_PASSWORD',
-  'DB_NAME',
-  'JWT_SECRET',
-  'SMTP_USER',
-  'SMTP_PASS'
-] as const;
-
-function validateEnvironment(): void {
-  const missing = requiredEnvVars.filter(varName => !process.env[varName]);
-  
-  if (missing.length > 0) {
-    throw new Error(
-      `Missing required environment variables: ${missing.join(', ')}\n` +
-      'Please check your .env file and ensure all required variables are set.'
-    );
+function requiredEnvironmentValue(name: string): string {
+  const value = process.env[name];
+  if (!value || !value.trim()) {
+    throw new ConfigurationError(`Missing required environment variable: ${name}. Configure it in the deployment environment.`);
   }
-
-  // Validate JWT_SECRET is not the default insecure value
-  if (process.env.JWT_SECRET === 'dev-secret-change-in-production') {
-    throw new Error(
-      'JWT_SECRET is set to the default insecure value. ' +
-      'Please update it to a strong, randomly generated secret in production.'
-    );
-  }
-
-  // Validate JWT_SECRET length
-  if (process.env.JWT_SECRET && process.env.JWT_SECRET.length < 32) {
-    console.warn('⚠️  WARNING: JWT_SECRET should be at least 32 characters long for security.');
-  }
+  return value;
 }
 
-// Run validation on module load
-validateEnvironment();
+export function getDatabaseConfig() {
+  const missing = ['DB_HOST', 'DB_USER', 'DB_PASSWORD', 'DB_NAME']
+    .filter(name => !process.env[name] || !process.env[name]!.trim());
+  if (missing.length) {
+    throw new ConfigurationError(`Database configuration is incomplete. Set: ${missing.join(', ')}.`);
+  }
 
-// Database Configuration
-export const DATABASE_CONFIG = {
-  host: process.env.DB_HOST!,
-  user: process.env.DB_USER!,
-  password: process.env.DB_PASSWORD!,
-  database: process.env.DB_NAME!,
-  port: parseInt(process.env.DB_PORT || '3306', 10),
-  connectionLimit: parseInt(process.env.DB_CONNECTION_LIMIT || '50', 10),
-  waitForConnections: true,
-  queueLimit: 0,
-  enableKeepAlive: true,
-  keepAliveInitialDelay: 0,
-  connectTimeout: 10000,
-  // Timezone handling
-  timezone: '+00:00',
-  dateStrings: false,
-} as const;
+  return {
+    host: process.env.DB_HOST!,
+    user: process.env.DB_USER!,
+    password: process.env.DB_PASSWORD!,
+    database: process.env.DB_NAME!,
+    port: parseInt(process.env.DB_PORT || '3306', 10),
+    connectionLimit: parseInt(process.env.DB_CONNECTION_LIMIT || '50', 10),
+    waitForConnections: true,
+    queueLimit: 0,
+    enableKeepAlive: true,
+    keepAliveInitialDelay: 0,
+    connectTimeout: 10000,
+    timezone: '+00:00',
+    dateStrings: false,
+  } as const;
+}
+
+function getJwtSecret(): string {
+  const secret = requiredEnvironmentValue('JWT_SECRET');
+  if (secret === 'dev-secret-change-in-production' || secret.length < 32) {
+    throw new ConfigurationError('JWT_SECRET must be a unique, randomly generated secret of at least 32 characters.');
+  }
+  return secret;
+}
+
+export function getEmailConfig() {
+  const user = requiredEnvironmentValue('SMTP_USER');
+  const pass = requiredEnvironmentValue('SMTP_PASS');
+  return {
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    port: parseInt(process.env.SMTP_PORT || '587', 10),
+    secure: process.env.SMTP_SECURE === 'true',
+    auth: { user, pass },
+    from: {
+      name: process.env.EMAIL_FROM_NAME || 'KindBites',
+      email: user,
+    },
+  } as const;
+}
 
 // Authentication Configuration
 export const AUTH_CONFIG = {
-  jwtSecret: process.env.JWT_SECRET!,
+  get jwtSecret() { return getJwtSecret(); },
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
   bcryptRounds: parseInt(process.env.BCRYPT_ROUNDS || '10', 10),
   // Session timeout in milliseconds
   sessionTimeout: 7 * 24 * 60 * 60 * 1000, // 7 days
-} as const;
-
-// Email Configuration
-export const EMAIL_CONFIG = {
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.SMTP_PORT || '587', 10),
-  secure: process.env.SMTP_SECURE === 'true',
-  auth: {
-    user: process.env.SMTP_USER!,
-    pass: process.env.SMTP_PASS!,
-  },
-  from: {
-    name: process.env.EMAIL_FROM_NAME || 'KindBites',
-    email: process.env.SMTP_USER!,
-  },
 } as const;
 
 // Application Configuration
@@ -93,7 +75,6 @@ export const APP_CONFIG = {
   // Feature flags
   features: {
     emailNotifications: process.env.FEATURE_EMAIL_NOTIFICATIONS !== 'false',
-    pdfReceipts: process.env.FEATURE_PDF_RECEIPTS !== 'false',
     imageCompression: process.env.FEATURE_IMAGE_COMPRESSION !== 'false',
   },
 } as const;
@@ -121,11 +102,6 @@ export const RATE_LIMIT_CONFIG = {
     windowMs: 60 * 60 * 1000, // 1 hour
     maxRequests: 20, // 20 uploads
   },
-} as const;
-
-// Item donation reference configuration
-export const DONATION_CONFIG = {
-  transactionIdPrefix: { item: 'ITEM' },
 } as const;
 
 // Validation Rules
@@ -208,6 +184,3 @@ export const isProduction = (): boolean => {
 export const isDevelopment = (): boolean => {
   return APP_CONFIG.environment === 'development';
 };
-
-// Export type for environment validation
-export type RequiredEnvVar = typeof requiredEnvVars[number];

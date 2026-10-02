@@ -1,6 +1,8 @@
--- KindBites schema for a fresh MySQL database. Existing tables are preserved.
+-- Empty KindBites schema. Apply only to a newly provisioned KindBites database.
+-- This file defines tables only; it contains no seed or historical records.
+-- Run once against an empty database; existing tables cause an error instead of being reused.
 
-CREATE TABLE IF NOT EXISTS `users` (
+CREATE TABLE `users` (
   `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `full_name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -22,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   KEY `status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `vendor_profiles` (
+CREATE TABLE `vendor_profiles` (
   `id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
   `business_name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -39,7 +41,7 @@ CREATE TABLE IF NOT EXISTS `vendor_profiles` (
   CONSTRAINT `vendor_profiles_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `ngo_profiles` (
+CREATE TABLE `ngo_profiles` (
   `id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
   `organization_name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -59,7 +61,7 @@ CREATE TABLE IF NOT EXISTS `ngo_profiles` (
   CONSTRAINT `ngo_profiles_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `food_listings` (
+CREATE TABLE `food_listings` (
   `id` int NOT NULL AUTO_INCREMENT,
   `vendor_id` int NOT NULL,
   `title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -78,7 +80,7 @@ CREATE TABLE IF NOT EXISTS `food_listings` (
   CONSTRAINT `food_listings_ibfk_1` FOREIGN KEY (`vendor_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `pickup_requests` (
+CREATE TABLE `pickup_requests` (
   `id` int NOT NULL AUTO_INCREMENT,
   `ngo_id` int NOT NULL,
   `listing_id` int NOT NULL,
@@ -102,7 +104,7 @@ CREATE TABLE IF NOT EXISTS `pickup_requests` (
   CONSTRAINT `pickup_requests_ibfk_2` FOREIGN KEY (`listing_id`) REFERENCES `food_listings` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `verification_documents` (
+CREATE TABLE `verification_documents` (
   `id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
   `document_type` enum('business_license','registration_certificate','identity_proof','address_proof','tax_certificate','other') COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -125,7 +127,7 @@ CREATE TABLE IF NOT EXISTS `verification_documents` (
   CONSTRAINT `verification_documents_ibfk_2` FOREIGN KEY (`reviewed_by`) REFERENCES `users` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `verification_profiles` (
+CREATE TABLE `verification_profiles` (
   `id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
   `verification_status` enum('pending','approved','rejected','incomplete') COLLATE utf8mb4_unicode_ci DEFAULT 'pending',
@@ -147,7 +149,7 @@ CREATE TABLE IF NOT EXISTS `verification_profiles` (
   CONSTRAINT `verification_profiles_ibfk_2` FOREIGN KEY (`reviewed_by`) REFERENCES `users` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `individual_donors` (
+CREATE TABLE `individual_donors` (
   `id` int NOT NULL AUTO_INCREMENT,
   `full_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `phone` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -164,10 +166,9 @@ CREATE TABLE IF NOT EXISTS `individual_donors` (
   KEY `phone` (`phone`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `item_donations` (
+CREATE TABLE `item_donations` (
   `id` int NOT NULL AUTO_INCREMENT,
   `donor_id` int NOT NULL,
-  `transaction_id` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `item_title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `quantity` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   `expiry_date` date DEFAULT NULL,
@@ -192,7 +193,7 @@ CREATE TABLE IF NOT EXISTS `item_donations` (
   CONSTRAINT `item_donations_ibfk_2` FOREIGN KEY (`reviewed_by`) REFERENCES `users` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `donation_logs` (
+CREATE TABLE `donation_logs` (
   `id` int NOT NULL AUTO_INCREMENT,
   `donor_id` int NOT NULL,
   `donation_type` enum('item') COLLATE utf8mb4_unicode_ci NOT NULL,

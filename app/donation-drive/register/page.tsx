@@ -297,7 +297,7 @@ export default function DonorRegistrationPage() {
                   </motion.p>
                 )}
                 <p className="mt-2 text-sm text-gray-500">
-                  📧 You&apos;ll receive donation receipts on this email
+                  📧 Collection acknowledgements will be sent to this email
                 </p>
               </div>
 

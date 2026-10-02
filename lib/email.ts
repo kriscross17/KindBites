@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer'
-import { EMAIL_CONFIG } from './config'
+import { getEmailConfig } from './config'
 
 interface EmailOptions {
   to: string
@@ -9,8 +9,8 @@ interface EmailOptions {
 }
 
 export async function sendEmail({ to, subject, html, attachments }: EmailOptions) {
+  const { from, ...transportConfig } = getEmailConfig()
   try {
-    const { from, ...transportConfig } = EMAIL_CONFIG
     const transporter = nodemailer.createTransport(transportConfig)
     const info = await transporter.sendMail({
       from: `${from.name} <${from.email}>`,

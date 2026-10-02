@@ -5,6 +5,7 @@
 
 import { NextResponse } from 'next/server';
 import { HTTP_STATUS, ERROR_MESSAGES, isProduction } from './config';
+import { ConfigurationError } from './configurationError';
 
 /**
  * Custom API Error class with status code and additional context
@@ -103,12 +104,13 @@ interface ErrorResponse {
  */
 export function formatErrorResponse(error: Error | ApiError): ErrorResponse {
   const isApiError = error instanceof ApiError;
+  const isConfigurationError = error instanceof ConfigurationError;
   
   const response: ErrorResponse = {
     success: false,
     error: {
-      message: isApiError ? error.message : ERROR_MESSAGES.SERVER_ERROR,
-      statusCode: isApiError ? error.statusCode : HTTP_STATUS.INTERNAL_SERVER_ERROR,
+      message: isApiError || isConfigurationError ? error.message : ERROR_MESSAGES.SERVER_ERROR,
+      statusCode: isApiError || isConfigurationError ? error.statusCode : HTTP_STATUS.INTERNAL_SERVER_ERROR,
       code: error.name,
     },
   };
