@@ -63,10 +63,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate role
-    if (!['vendor', 'ngo', 'admin'].includes(role)) {
+    // Administrator accounts must be provisioned by the project owner, never by public signup.
+    if (!['vendor', 'ngo'].includes(role)) {
       return NextResponse.json({ 
         success: false,
-        message: 'Invalid role. Must be vendor, ngo, or admin' 
+        message: 'Invalid role. Public registration is available for vendors and NGOs only.' 
       }, { status: 400 });
     }
 
